@@ -1,4 +1,4 @@
 services:
-#    db_statistic.example:
-#        class: DB\StatisticBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
+    db.statistic.dataManager:
+        class: '%db_statistic.dataclass%'
+        arguments: [ "@doctrine.orm.entity_manager", "@security.authorization_checker", "@security.token_storage" ]

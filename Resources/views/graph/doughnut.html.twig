@@ -1,0 +1,35 @@
+<canvas id="doughnut_{{ graph.id }}" width="100" height="100"></canvas>
+
+<script>
+
+    var ctx = "doughnut_{{ graph.id }}";
+    var data = {
+        labels: [
+            {% for key, value in graph.data %}
+            "{{ key }}",
+            {% endfor %}
+        ],
+        datasets: [
+            {
+                data: [300, 100],
+                backgroundColor: [
+                    "#FF6384",
+                    "#36A2EB"
+                ],
+                hoverBackgroundColor: [
+                    "#FF6384",
+                    "#36A2EB"
+                ]
+            }]
+    };
+
+    var myDoughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            animation:{
+                animateScale:true
+            }
+        }
+    });
+</script>

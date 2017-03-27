@@ -1,0 +1,27 @@
+{
+  "name" : "db/statisticbundle",
+  "description" : "Show custom statistic with web interface",
+  "type" : "symfony-bundle",
+  "license": "MIT",
+  "authors" : [{
+    "name" : "Hugo Fouquet",
+    "email" : "hugo.fouquet@epita.fr",
+    "role": "Developer"
+  }],
+  "keywords" : [
+    "Statistic", "Web interface manager"
+  ],
+  "require" : {
+    "php" : ">=5.6.0",
+    "symfony/framework-bundle" : ">=3.0",
+    "twig/twig" : "*",
+    "doctrine/doctrine-bundle" : "*",
+    "symfony/assetic-bundle" : "*"
+  },
+  "autoload" : {
+    "psr-0" : {
+      "DB\\StatisticBundle" : ""
+    }
+  },
+  "target-dir" : "DB/StatisticBundle"
+}

@@ -1,1 +1,37 @@
 Hello DBStatisticBundle !
+
+
+{% javascripts '@DBStatisticBundle/Resources/public/js/jquery.min.js'
+'@DBStatisticBundle/Resources/public/js/statcore.js'
+'@DBStatisticBundle/Resources/public/js/Chart.min.js' %}
+<script src="{{ asset_url }}"></script>
+{% endjavascripts %}
+<script>
+    $(function() {
+        {% for key in graphs|keys %}
+        loadGraph("{{ key }}", "elm_{{ key }}");
+        {% endfor %}
+    });
+</script>
+
+<style>
+    .content {
+        max-width: 400px;
+        min-width: 200px;
+        display: inline-block;
+    }
+    .content p {
+        text-align: center;
+    }
+</style>
+
+{%  for g in graphs %}
+
+    <div class="content">
+        <p>{{ g.title }}</p>
+        <canvas id=elm_{{ g.id }}></canvas>
+        {#{% include 'DBStatisticBundle:graph:base.html.twig' with {'graph':g} %}#}
+    </div>
+
+{% endfor %}
+
