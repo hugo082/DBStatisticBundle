@@ -1,4 +1,5 @@
 services:
-    db.statistic.dataManager:
-        class: '%db_statistic.dataclass%'
-        arguments: [ "@doctrine.orm.entity_manager", "@security.authorization_checker", "@security.token_storage" ]
+
+    db.statistic.manager:
+        class: DB\StatisticBundle\Manager\GraphManager
+        arguments: [ "@service_container", "%db_statistic.graphs%" ]

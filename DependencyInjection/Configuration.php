@@ -43,7 +43,7 @@ class Configuration implements ConfigurationInterface
     {
         $node
             ->children()
-                ->scalarNode('dataClass')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('service')->isRequired()->cannotBeEmpty()->end()
             ->end()
         ;
     }
@@ -58,17 +58,11 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('graphs')
                     ->prototype('array')->addDefaultsIfNotSet()
                         ->children()
-                            ->scalarNode('title')->end()     // Auto
-                            ->scalarNode('dataMethod')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('title')->isRequired()->cannotBeEmpty()->end()
+                            ->scalarNode('service')->end()  # Override
+                            ->scalarNode('method')->isRequired()->cannotBeEmpty()->end()
                             ->enumNode('type')->isRequired()->cannotBeEmpty()
                                 ->values(Configuration::TYPES)
-                            ->end()
-                            ->arrayNode('access')
-                                ->beforeNormalization()
-                                ->ifString()
-                                ->then(function ($v) { return array($v); })
-                                ->end()
-                                ->prototype('scalar')->end()
                             ->end()
                         ->end()
                     ->end()

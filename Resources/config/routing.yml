@@ -1,7 +1,7 @@
-db.statistic.homepage:
+db.statistic:
     path:     /
     defaults: { _controller: DBStatisticBundle:Default:index }
 
 db.statistic.data:
-    path:     /data/{graphId}
+    path:     /data/{graphID}
     defaults: { _controller: DBStatisticBundle:Data:index }

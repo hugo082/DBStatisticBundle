@@ -2,18 +2,19 @@
 
 namespace DB\StatisticBundle\Controller;
 
-use DB\StatisticBundle\Core\DataManager;
+use DB\StatisticBundle\Manager\GraphManager;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DataController extends Controller
 {
-    public function indexAction($graphId)
+    public function indexAction($graphID)
     {
         $response = new JsonResponse();
-        $graphs = $this->container->getParameter('db_statistic.graphs');
-        /** @var $dm DataManager */
-        $dm = $this->get('db.statistic.dataManager');
+        /** @var GraphManager $graphManager */
+        $graphManager = $this->get('db.statistic.manager');
+
+        $graph = $graphManager->getGraphWithID($graphID);
 
 
         $dataResponse = array(
@@ -21,19 +22,11 @@ class DataController extends Controller
                 'status' => 'Displayed',
                 'statusCode' => 200,
             ),
-            'graph' => null
+            'graph' => $graph->encode()
         );
 
-        if (key_exists($graphId, $graphs)) {
-            $gInfo = $graphs[$graphId];
-            $mName = $gInfo['dataMethod'];
-            $dm->setGraphInformation($gInfo);
-            $dm->$mName();
-            $dataResponse['graph'] = $dm->compute();
-        } else {
-            $dataResponse['response']['status'] = $graphId . ' Not Found';
-            $dataResponse['response']['statusCode'] = 404;
-        }
+
+
         $response->setData($dataResponse);
         $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
         return $response;

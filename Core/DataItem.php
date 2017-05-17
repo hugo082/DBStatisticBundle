@@ -15,61 +15,111 @@ namespace DB\StatisticBundle\Core;
 
 class DataItem
 {
-    private $data;
-    private $computed;
+    /**
+     * @var float
+     */
+    private $value;
 
-    private $values = "";
-    private $labels = "";
-    private $backgroundColors = "";
+    /**
+     * @var string
+     */
+    private $label;
 
-    public function __construct(array $data) {
-        $this->data = $data;
-        $this->computed = false;
+    /**
+     * @var int
+     */
+    private $moyCount = 0;
+
+    /**
+     * @var int
+     */
+    private $moyBuffer = 0;
+
+    /**
+     * @var array
+     */
+    private $options;
+
+    public function __construct(string $label, float $value)
+    {
+        $this->label = $label;
+        $this->value = $value;
+        $this->options = array();
     }
 
-
-
-    public function getValues() {
-        $this->computeData();
-        return $this->values;
-    }
-
-    public function getLabels() {
-        $this->computeData();
-        return $this->labels;
-    }
-
-    public function getBackgroundColors() {
-        $this->computeData();
-        return $this->backgroundColors;
-    }
-
-    private function computeData() {
-        if ($this->computed)
-            return;
-        foreach ($this->data as $item) {
-            $this->values .= $item["value"] . ",";
-            $this->backgroundColors .= "'" . $item["backgroundColor"] . "',";
-            $this->labels .= "'" . $item["label"] . "',";
-        }
-        $this->computed = true;
+    public function encode(array &$data) {
+        $data["data"][] = $this->value;
+        $data["labels"][] = $this->label;
+        foreach ($this->options as $key => $value)
+            $data[$key][] = $value;
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function getData() {
-        return $this->data;
+    public function getLabel(): string
+    {
+        return $this->label;
     }
 
     /**
-     * @param array $data
-     * @return $this
+     * @param string $label
      */
-    public function setData(array $data) {
-        $this->data = $data;
-        $this->computed = false;
-        return $this;
+    public function setLabel(string $label)
+    {
+        $this->label = $label;
     }
 
+    /**
+     * @return float
+     */
+    public function getValue(): float
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param string $key
+     * @param $value
+     */
+    public function setOption(string $key, $value)
+    {
+        $this->options[$key] = $value;
+    }
+
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getOption(string $key)
+    {
+        if (key_exists($key, $this->options))
+            return $this->options[$key];
+        return null;
+    }
+
+    /**
+     * @param float $value
+     */
+    public function setValue(float $value)
+    {
+        $this->value = $value;
+    }
+
+    /**
+     * @param float $value
+     */
+    public function incrementValue(float $value) {
+        $this->value += $value;
+    }
+
+    /**
+     * @param float $value
+     * @param int $count
+     */
+    public function incrementMoyValue(float $value, int $count = 1) {
+        $this->moyCount += $count;
+        $this->moyBuffer += $value;
+        $this->value = $this->moyBuffer / $this->moyCount;
+    }
 }

@@ -15,29 +15,9 @@ function loadGraph(gId, elemId) {
 }
 
 function showGraph(gObj, elemId){
-
-    var data = [];
-    gObj.lines.forEach(function (element, index, array) {
-        console.log(element);
-        var item = {
-            label: element.label,
-            data: element.dataSets,
-            backgroundColor: element.backgroundColor,
-            hoverBackgroundColor: "#3c3c3c"
-        };
-        data.push(item);
-    });
-    console.log(gObj.lines);
-    console.log(data);
-
-    var data = {
-        labels: gObj.labels,
-        datasets: data
-    };
-
     new Chart(elemId, {
-        type: gObj.information.type,
-        data: data,
-        options: null
+        type: gObj.informations.type,
+        data: gObj.data,
+        options: gObj.options
     });
 }

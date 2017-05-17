@@ -35,7 +35,7 @@ class DBStatisticExtension extends Extension
      */
     private function loadBase(array $config, ContainerBuilder $container)
     {
-        $container->setParameter($this->getAlias().'.dataClass', $config['dataClass']);
+        $container->setParameter($this->getAlias().'.service', $config['service']);
     }
 
     /**
@@ -47,11 +47,8 @@ class DBStatisticExtension extends Extension
         foreach ($config['graphs'] as $name => $values) {
             $values['id'] = $name;
 
-            if (!isset($values['title']))
-                $values['title'] = $name;
-
-            if (!isset($values['access']) || empty($values['access']))
-                $values['access'] = NULL;
+            if (!isset($values['service']))
+                $values['service'] = $config['service'];
 
             $config['graphs'][$name] = $values;
         }
