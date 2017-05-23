@@ -93,7 +93,7 @@ class Color
      * @param string $hex
      * @return Color
      */
-    public static function randomFromHex(string $hex): Color {
+    public static function fromHex(string $hex): Color {
         list($r, $g, $b) = sscanf($hex, "#%02x%02x%02x");
         return new Color($r, $g, $b, 1);
     }
