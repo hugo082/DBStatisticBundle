@@ -90,6 +90,15 @@ class Color
     }
 
     /**
+     * @param string $hex
+     * @return Color
+     */
+    public static function randomFromHex(string $hex): Color {
+        list($r, $g, $b) = sscanf($hex, "#%02x%02x%02x");
+        return new Color($r, $g, $b, 1);
+    }
+
+    /**
      * @param Color $color
      * @param int $delta
      * @param float|null $alpha
@@ -213,7 +222,7 @@ class Color
     }
 
     public function getRGBA(): string {
-        return  'rgba(' . round($this->red) . ',' . round($this->blue) . ',' . round($this->green) . ',' . round($this->alpha, 3) . ')';
+        return  'rgba(' . round($this->red) . ',' . round($this->green) . ',' . round($this->blue) . ',' . round($this->alpha, 3) . ')';
     }
 
     /**
@@ -244,6 +253,6 @@ class Color
      * @return Color
      */
     private static function dublicate(Color $color): Color {
-        return new Color($color->red, $color->blue, $color->green, $color->alpha);
+        return new Color($color->red, $color->green, $color->blue, $color->alpha);
     }
 }
