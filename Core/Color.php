@@ -105,10 +105,14 @@ class Color
      * @return Color
      */
     public static function fromString(string $string, int $delta = 0): Color {
-        $delta = min(16777215 - 1, $delta);
-        $hash = crc32($string) % (16777215 - $delta) + $delta;
-        $hex = dechex($hash);
-        $hex = str_pad($hex, 6 - count($hex), "0", STR_PAD_LEFT);
+        if (ctype_xdigit($string))
+            $hex = $string;
+        else {
+            $delta = min(16777215 - 1, $delta);
+            $hash = crc32($string) % (16777215 - $delta) + $delta;
+            $hex = dechex($hash);
+            $hex = str_pad($hex, 6 - count($hex), "0", STR_PAD_LEFT);
+        }
         return self::fromHex("#".$hex);
     }
 

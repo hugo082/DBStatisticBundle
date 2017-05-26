@@ -14,34 +14,25 @@
 namespace DB\StatisticBundle\Core;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Validator\Constraints\DateTime;
 
-class Line
+class Line extends DesignableItem
 {
     /**
      * @var string
      */
     private $id;
-    /**
-     * @var null|string
-     */
-    private $label;
 
     /**
      * @var array
      */
     private $items;
 
-    /**
-     * @var array
-     */
-    private $options;
-
     public function __construct(string $id, string $label = null)
     {
+        parent::__construct($label);
         $this->id = $id;
-        $this->label = $label;
         $this->items = array();
-        $this->options = array();
     }
 
     /**
@@ -81,24 +72,64 @@ class Line
     }
 
     /**
+     * @param string $format
+     * @param string $increments
+     * @param int $value
+     * @throws \Exception
+     */
+    public function defaultLabelForDate(string $format, string $increments, $value = 0) {
+        /** @var \DateTime $firstDate */
+        $firstDate = null;
+        /** @var \DateTime $lastDate */
+        $lastDate = null;
+        /** @var DataItem $item */
+        foreach ($this->items as $item) {
+            if ($item->getDate() == null)
+                throw new \Exception("All items must have a date");
+            if ($firstDate == null || $firstDate > $item->getDate())
+                $firstDate = $item->getDate();
+            if ($lastDate == null || $lastDate < $item->getDate())
+                $lastDate = $item->getDate();
+        }
+        $date = clone $firstDate;
+        $date->modify($increments);
+        if ($date <= $firstDate)
+            throw new \Exception($increments . " must increment date");
+        $maxSize = 100;
+        while ($date < $lastDate) {
+            if ($maxSize == 0)
+                throw new \Exception("To much iteration");
+            $maxSize--;
+            $date = $date->modify($increments);
+            $this->getItemWithLabel($date->format($format), true, clone $date, $value);
+        }
+    }
+
+    /**
      * @param string $label
      * @param float $value
+     * @param bool $designColor
      * @return DataItem
      */
-    public function incrementValueForItemWithLabel(string $label, float $value): DataItem {
+    public function incrementValueForItemWithLabel(string $label, float $value, bool $designColor = false): DataItem {
         $item = $this->getItemWithLabel($label, true);
         $item->incrementValue($value);
+        if ($designColor)
+            $item->designColor();
         return $item;
     }
 
     /**
      * @param string $label
      * @param float $value
+     * @param bool $designColor
      * @return DataItem
      */
-    public function setValueForItemWithLabel(string $label, float $value): DataItem {
+    public function setValueForItemWithLabel(string $label, float $value, bool $designColor = false): DataItem {
         $item = $this->getItemWithLabel($label, true);
         $item->setValue($value);
+        if ($designColor)
+            $item->designColor();
         return $item;
     }
 
@@ -132,21 +163,26 @@ class Line
      * @param int $count
      * @return DataItem
      */
-    public function incrementMoyValueForItemWithLabel(string $label, float $value, int $count = 1): DataItem {
+    public function incrementMoyValueForItemWithLabel(string $label, float $value, int $count = 1, bool $designColor = false): DataItem {
         $item = $this->getItemWithLabel($label, true);
         $item->incrementMoyValue($value, $count);
+        if ($designColor)
+            $item->designColor();
         return $item;
     }
 
     /**
      * @param string $label
-     * @return DataItem|null
+     * @param bool $autoCreate
+     * @param \DateTime|null $date
+     * @param int $defaultValue
+     * @return DataItem|mixed|null
      */
-    public function getItemWithLabel(string $label, bool $autoCreate = false) {
+    public function getItemWithLabel(string $label, bool $autoCreate = false, \DateTime $date = null, $defaultValue = 0) {
         if (key_exists($label, $this->items))
             return $this->items[$label];
         if ($autoCreate)
-            return $this->items[$label] = new DataItem($label, 0);
+            return $this->items[$label] = new DataItem($label, $defaultValue, $date);
         return null;
     }
 
@@ -159,34 +195,11 @@ class Line
     }
 
     /**
-     * @param DataItem $item
-     */
-    public function pushItem(DataItem $item) {
-        $this->items[] = $item;
-    }
-
-    /**
      * @return array
      */
     public function getItems(): array
     {
         return $this->items;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getLabel()
-    {
-        return $this->label;
-    }
-
-    /**
-     * @param string $label
-     */
-    public function setLabel(string $label)
-    {
-        $this->label = $label;
     }
 
     /**
@@ -203,26 +216,6 @@ class Line
     public function setId(string $id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @param string $key
-     * @param $value
-     */
-    public function setOption(string $key, $value)
-    {
-        $this->options[$key] = $value;
-    }
-
-    /**
-     * @param string $key
-     * @return mixed|null
-     */
-    public function getOption(string $key)
-    {
-        if (key_exists($key, $this->options))
-            return $this->options[$key];
-        return null;
     }
 
 }

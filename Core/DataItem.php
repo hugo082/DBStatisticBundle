@@ -13,7 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
-class DataItem
+class DataItem extends DesignableItem
 {
     /**
      * @var float
@@ -21,30 +21,25 @@ class DataItem
     private $value;
 
     /**
-     * @var string
+     * @var null|\DateTime
      */
-    private $label;
+    private $date;
 
     /**
      * @var int
      */
-    private $moyCount = 0;
+    private $_moyCount = 0;
 
     /**
      * @var int
      */
-    private $moyBuffer = 0;
+    private $_moyBuffer = 0;
 
-    /**
-     * @var array
-     */
-    private $options;
-
-    public function __construct(string $label, float $value)
+    public function __construct(string $label, float $value, \DateTime $date = null)
     {
-        $this->label = $label;
+        parent::__construct($label);
         $this->value = $value;
-        $this->options = array();
+        $this->date = $date;
     }
 
     public function encode(array &$data) {
@@ -55,47 +50,11 @@ class DataItem
     }
 
     /**
-     * @return string
-     */
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
-
-    /**
-     * @param string $label
-     */
-    public function setLabel(string $label)
-    {
-        $this->label = $label;
-    }
-
-    /**
      * @return float
      */
     public function getValue(): float
     {
         return $this->value;
-    }
-
-    /**
-     * @param string $key
-     * @param $value
-     */
-    public function setOption(string $key, $value)
-    {
-        $this->options[$key] = $value;
-    }
-
-    /**
-     * @param string $key
-     * @return mixed|null
-     */
-    public function getOption(string $key)
-    {
-        if (key_exists($key, $this->options))
-            return $this->options[$key];
-        return null;
     }
 
     /**
@@ -118,8 +77,24 @@ class DataItem
      * @param int $count
      */
     public function incrementMoyValue(float $value, int $count = 1) {
-        $this->moyCount += $count;
-        $this->moyBuffer += $value;
-        $this->value = $this->moyBuffer / $this->moyCount;
+        $this->_moyCount += $count;
+        $this->_moyBuffer += $value;
+        $this->value = $this->_moyBuffer / $this->_moyCount;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getDate()
+    {
+        return $this->date;
+    }
+
+    /**
+     * @param \DateTime $date
+     */
+    public function setDate(\DateTime $date)
+    {
+        $this->date = $date;
     }
 }

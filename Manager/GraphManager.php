@@ -40,10 +40,10 @@ class GraphManager
      * @param Graph $graph
      * @return Graph
      */
-    private function computeGraph(Graph $graph) {
+    private function computeGraph(Graph $graph, array $parameters) {
         $service = $this->container->get($graph->getService());
         $methodName = $graph->getMethod();
-        $service->$methodName($graph);
+        $service->$methodName($graph, $parameters);
         return $graph;
     }
 
@@ -51,9 +51,9 @@ class GraphManager
      * @param string $graphID
      * @return Graph
      */
-    public function getGraphWithID(string $graphID) : Graph {
+    public function getGraphWithID(string $graphID, array $parameters) : ?Graph {
         if (key_exists($graphID, $this->graphs))
-            return $this->computeGraph($this->graphs[$graphID]);
+            return $this->computeGraph($this->graphs[$graphID], $parameters);
         return null;
     }
 

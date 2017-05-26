@@ -54,6 +54,12 @@ class Data
             $line->sortItemsByDate($format);
     }
 
+    public function defaultLabelForDate(string $format, string $increments, $value = 0) {
+        /** @var Line $line */
+        foreach ($this->lines as $line)
+            $line->defaultLabelForDate($format, $increments, $value);
+    }
+
     /**
      * @param string $id
      * @param string|null $label
@@ -73,11 +79,11 @@ class Data
      * @param string|null $lineID
      * @throws \Exception
      */
-    public function incrementValueForItemWithLabel(string $label, float $value, string $lineID = null) {
+    public function incrementValueForItemWithLabel(string $label, float $value, string $lineID = null, bool $designColor = false) {
         $line = $this->getLineWithID($lineID);
         if ($line == null)
             throw new \Exception("Impossible to increment value of item with label '" . $label . "'. Line '" . $lineID . "' doesn't exist.");
-        $line->incrementValueForItemWithLabel($label, $value);
+        $line->incrementValueForItemWithLabel($label, $value, $designColor);
     }
 
     /**

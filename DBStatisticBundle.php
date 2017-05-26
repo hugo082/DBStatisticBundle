@@ -6,8 +6,12 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
  * {@inheritDoc}
- * @todo Override des views. Ajouter la possibilité d'afficher en fonction de jours/semaines/mois/annees pour les dates.
  * TODO : URL Load Data
+ * TODO : Multi Graph in 1 link
+ * TODO : Passer des parametres aux graphs
+ * TODO : Graph de type stat basique (ex: Nombre d'utilisateur : 234)
+ * TODO : Multi echelle support (day/month/year...)
+ * TODO : Display support
  */
 class DBStatisticBundle extends Bundle
 {
