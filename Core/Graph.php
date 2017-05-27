@@ -47,14 +47,20 @@ class Graph
      */
     private $method;
 
+    /**
+     * @var array
+     */
+    private $actions;
 
-    public function __construct(string $id, string $type, string $title, string $service, string $method)
+
+    public function __construct(string $id, string $type, string $title, string $service, string $method, array $actions)
     {
         $this->id = $id;
         $this->type = $type;
         $this->title = $title;
         $this->service = $service;
         $this->method = $method;
+        $this->actions = $actions;
         $this->data = new Data();
     }
 
@@ -64,6 +70,7 @@ class Graph
     public function encode() : array {
         return array(
             "informations" => $this->encodeGraphInformations(),
+            "actions" => $this->actions,
             "data" => $this->data->encode()
         );
     }
@@ -170,5 +177,9 @@ class Graph
     public function setService(string $service)
     {
         $this->service = $service;
+    }
+
+    public static function fromArray(array $data): ?Graph {
+        return new Graph($data["id"], $data["type"], $data["title"], $data["service"], $data["method"], $data["actions"]);
     }
 }

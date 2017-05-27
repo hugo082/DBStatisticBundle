@@ -44,13 +44,10 @@ class DBStatisticExtension extends Extension
      */
     private function loadGraphs(array $config, ContainerBuilder $container)
     {
-        foreach ($config['graphs'] as $name => $values) {
+        foreach ($config['graphs'] as $name => &$values) {
             $values['id'] = $name;
-
             if (!isset($values['service']))
                 $values['service'] = $config['service'];
-
-            $config['graphs'][$name] = $values;
         }
         $container->setParameter($this->getAlias().'.graphs', $config['graphs']);
     }

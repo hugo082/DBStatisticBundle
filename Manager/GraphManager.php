@@ -58,7 +58,10 @@ class GraphManager
     }
 
     private function decodeGraphs(array $graphs) {
-        foreach ($graphs as $graph)
-            $this->graphs[$graph["id"]] = new Graph($graph["id"], $graph["type"], $graph["title"], $graph["service"], $graph["method"]);
+        foreach ($graphs as $graph) {
+            $g = Graph::fromArray($graph);
+            if ($g != null)
+                $this->graphs[$graph["id"]] = $g;
+        }
     }
 }

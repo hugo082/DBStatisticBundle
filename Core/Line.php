@@ -91,6 +91,8 @@ class Line extends DesignableItem
             if ($lastDate == null || $lastDate < $item->getDate())
                 $lastDate = $item->getDate();
         }
+        if ($firstDate == null || $lastDate == null)
+            return;
         $date = clone $firstDate;
         $date->modify($increments);
         if ($date <= $firstDate)
@@ -135,7 +137,9 @@ class Line extends DesignableItem
 
     public function encode(): array {
         $res = array(
-            "label" => $this->label
+            "label" => $this->label,
+            "labels" => array(),
+            "data" => array()
         );
         /** @var DataItem $item */
         foreach ($this->items as $item)

@@ -30,7 +30,7 @@ class Data
     public function encode(): array {
         $lines = array();
         $labels = array();
-        /** @var Line $item */
+        /** @var Line $line */
         foreach ($this->lines as $line) {
             $encode = $line->encode();
             $labels = $encode["labels"];
