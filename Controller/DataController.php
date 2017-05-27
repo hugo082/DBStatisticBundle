@@ -17,17 +17,22 @@ class DataController extends Controller
 
         $graph = $graphManager->getGraphWithID($graphID, $request->query->all());
 
-        $code = $graph != null ? $graph->encode() : null;
-
-        $dataResponse = array(
-            'response' => array(
-                'status' => 'Displayed',
-                'statusCode' => 200,
-            ),
-            'graph' => $code
-        );
-
-
+        if ($graph == null)
+            $dataResponse = array(
+                'response' => array(
+                    'status' => 'Graph with id ' . $graphID . ' not found.',
+                    'statusCode' => 404,
+                )
+            );
+        else
+            $dataResponse = array(
+                'response' => array(
+                    'status' => 'Displayed',
+                    'statusCode' => 200,
+                ),
+                'graph' => $graph->encode()
+            );
+        $dataResponse["response"]["id"] = $graphID;
 
         $response->setData($dataResponse);
         $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
