@@ -2,25 +2,38 @@
  * Created by hugofouquet on 26/03/2017.
  */
 
-function loadGraph(gID) {
+function loadGraph(response) {
+    var container = $("div[data-id='" + response.status.graph_id + "']");
+    if (response.status.code === 200) {
+        var elementID =  "elm_" + response.graph.informations.id;
+        $('<canvas>').attr({
+            id: elementID
+        }).appendTo(container);
+        insertActions(response.graph, container);
+        showGraph(response.graph, elementID);
+    } else {
+        container.append("<h3 class='graph-error graph-error-title'>Error Loading Graph</h3>");
+        container.append("<p class='graph-error graph-error-desc'>" + response.status.title + "</p>");
+        console.error(response.status.message);
+    }
+}
+
+function multipleRequestGraph(ids) {
+    $.ajax({
+        url: "/statistic/data/multiple",
+        data: ids,
+        success: function( response ) {
+            for (var graph in response.graphs)
+                loadGraph(response.graphs[graph]);
+        }
+    });
+}
+
+function requestGraph(gID) {
     $.ajax({
         url: "/statistic/data/" + gID,
         data: null,
-        success: function( response ) {
-            var container = $("div[data-id='" + gID + "']");
-            if (response.status.code === 200) {
-                var elementID =  "elm_" + response.graph.informations.id;
-                $('<canvas>').attr({
-                    id: elementID
-                }).appendTo(container);
-                insertActions(response.graph, container);
-                showGraph(response.graph, elementID);
-            } else {
-                container.append("<h3 class='graph-error graph-error-title'>Error Loading Graph</h3>");
-                container.append("<p class='graph-error graph-error-desc'>" + response.status.title + "</p>");
-                console.error(response.status.message);
-            }
-        }
+        success: loadGraph
     });
 }
 
@@ -66,11 +79,22 @@ function insertActions(graph, parent) {
             .click(function () {
                 var data = $(this).data();
                 updateGraph(data.id, data.action);
-        });
+            });
     }
 }
 
 var graphs = $("div[data-type='graph']");
-graphs.each(function() {
-    loadGraph($(this).data("id"));
+var multiple = {};
+graphs.each(function(index) {
+    var multipleData = $(this).data("multiple");
+    if (typeof multipleData !== "undefined") {
+        if (typeof multiple[multipleData] === "undefined")
+            multiple[multipleData] = {};
+        multiple[$(this).data("multiple")]["id" + index] = $(this).data("id");
+    } else
+        requestGraph($(this).data("id"));
 });
+
+for (var graphSet in multiple){
+    multipleRequestGraph(multiple[graphSet]);
+}

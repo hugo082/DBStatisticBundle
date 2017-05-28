@@ -43,27 +43,39 @@ class DataController extends Controller
         /** @var GraphManager $graphManager */
         $graphManager = $this->get('db.statistic.manager');
 
+        $statusCode = 200;
         $graphs = array();
         foreach ($request->query->all() as $key => $value) {
             if (substr( $key, 0, 2 ) !== "id")
                 continue;
-            $graph = $graphManager->getGraphWithID($value, array());
-            $graphs[$key] = $graph->encode();
+            try {
+                $graphs[$key] = array(
+                    "status" => array(
+                        'code' => 200,
+                        'graph_id' => $value
+                    ),
+                    "graph" => $graphManager->getGraphWithID($value, $request->query->all())->encode()
+                );
+            } catch (ApiException $e) {
+                $statusCode = 201;
+                $e->setGraphID($value);
+                $graphs[$key] = array(
+                    "status" => $e->encode(),
+                    "graph" => null
+                );
+            }
         }
 
 
         $dataResponse = array(
-            'response' => array(
-                'status' => 'Displayed',
-                'statusCode' => 200,
+            'status' => array(
+                'code' => $statusCode
             ),
             'graphs' => $graphs
         );
 
         $response->setData($dataResponse);
-        $response->setStatusCode(404);
         $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
-        return new JsonResponse(array('message' => ''), 419);
         return $response;
     }
 }
