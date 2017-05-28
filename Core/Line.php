@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Exception\GraphInternalException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Validator\Constraints\DateTime;
 
@@ -65,7 +66,7 @@ class Line extends DesignableItem
             $dateA = \DateTime::createFromFormat($format, $a);
             $dateB = \DateTime::createFromFormat($format, $b);
             if (!$dateA instanceof \DateTime and !$dateB instanceof \DateTime)
-                throw new Exception("Impossible to convert key '" . $a . "' or '" .$b . "' to DateTime with format '" . $format . "'.");
+                throw new GraphInternalException("Impossible to convert key '" . $a . "' or '" .$b . "' to DateTime with format '" . $format . "'.");
             return $dateA > $dateB;
         };
         $this->sortItems($cmp);
@@ -75,7 +76,7 @@ class Line extends DesignableItem
      * @param string $format
      * @param string $increments
      * @param int $value
-     * @throws \Exception
+     * @throws GraphInternalException
      */
     public function defaultLabelForDate(string $format, string $increments, $value = 0) {
         /** @var \DateTime $firstDate */
@@ -85,7 +86,7 @@ class Line extends DesignableItem
         /** @var DataItem $item */
         foreach ($this->items as $item) {
             if ($item->getDate() == null)
-                throw new \Exception("All items must have a date");
+                throw new GraphInternalException("All items must have a date to set default date label");
             if ($firstDate == null || $firstDate > $item->getDate())
                 $firstDate = $item->getDate();
             if ($lastDate == null || $lastDate < $item->getDate())
@@ -96,11 +97,11 @@ class Line extends DesignableItem
         $date = clone $firstDate;
         $date->modify($increments);
         if ($date <= $firstDate)
-            throw new \Exception($increments . " must increment date");
+            throw new GraphInternalException($increments . " must increment date");
         $maxSize = 100;
         while ($date < $lastDate) {
             if ($maxSize == 0)
-                throw new \Exception("To much iteration");
+                throw new GraphInternalException("To much iteration in default date label");
             $maxSize--;
             $date = $date->modify($increments);
             $this->getItemWithLabel($date->format($format), true, clone $date, $value);

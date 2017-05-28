@@ -16,6 +16,7 @@ namespace DB\StatisticBundle\Manager;
 use Symfony\Component\DependencyInjection\ContainerInterface as Container;
 
 use DB\StatisticBundle\Core\Graph;
+use DB\StatisticBundle\Exception\GraphNotFoundException;
 
 class GraphManager
 {
@@ -49,12 +50,14 @@ class GraphManager
 
     /**
      * @param string $graphID
-     * @return Graph
+     * @param array $parameters
+     * @return Graph|null
+     * @throws GraphNotFoundException
      */
     public function getGraphWithID(string $graphID, array $parameters) : ?Graph {
         if (key_exists($graphID, $this->graphs))
             return $this->computeGraph($this->graphs[$graphID], $parameters);
-        return null;
+        throw new GraphNotFoundException();
     }
 
     private function decodeGraphs(array $graphs) {

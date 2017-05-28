@@ -13,6 +13,8 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Exception\GraphInternalException;
+
 class Graph
 {
 
@@ -180,6 +182,9 @@ class Graph
     }
 
     public static function fromArray(array $data): ?Graph {
-        return new Graph($data["id"], $data["type"], $data["title"], $data["service"], $data["method"], $data["actions"]);
+        if (key_exists("id", $data) && key_exists("type", $data) && key_exists("title", $data)
+            && key_exists("service", $data) && key_exists("method", $data) && key_exists("actions", $data))
+            return new Graph($data["id"], $data["type"], $data["title"], $data["service"], $data["method"], $data["actions"]);
+        throw new GraphInternalException("Impossible to uncode Graph.");
     }
 }

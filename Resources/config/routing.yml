@@ -2,6 +2,10 @@ db.statistic:
     path:     /
     defaults: { _controller: DBStatisticBundle:Default:index }
 
+db.statistic.data.multiple:
+    path:     /data/multiple
+    defaults: { _controller: DBStatisticBundle:Data:multiple }
+
 db.statistic.data:
     path:     /data/{graphID}
     defaults: { _controller: DBStatisticBundle:Data:index }

@@ -6,20 +6,19 @@ function loadGraph(gID) {
     $.ajax({
         url: "/statistic/data/" + gID,
         data: null,
-        success: function( res ) {
-            var graph = res.graph;
-            var response = res.response;
-            var container = $("div[data-id='" + response.id + "']");
-            if (response.statusCode === 200) {
-                var elementID =  "elm_" + graph.informations.id;
+        success: function( response ) {
+            var container = $("div[data-id='" + gID + "']");
+            if (response.status.code === 200) {
+                var elementID =  "elm_" + response.graph.informations.id;
                 $('<canvas>').attr({
                     id: elementID
                 }).appendTo(container);
-                insertActions(graph, container);
-                showGraph(graph, elementID);
+                insertActions(response.graph, container);
+                showGraph(response.graph, elementID);
             } else {
                 container.append("<h3 class='graph-error graph-error-title'>Error Loading Graph</h3>");
-                container.append("<p class='graph-error graph-error-desc'>" + response.status + "</p>");
+                container.append("<p class='graph-error graph-error-desc'>" + response.status.title + "</p>");
+                console.error(response.status.message);
             }
         }
     });
@@ -38,13 +37,17 @@ function updateGraph(gID, action) {
         url: "/statistic/data/" + gID,
         data: action,
         success: function( res ) {
-            var chart = window["graphs"][res.response.id];
-            if (res.response.statusCode === 200 && typeof chart !== "undefined") {
+            var chart = window["graphs"][gID];
+            if (typeof chart === "undefined") {
+                console.error("Impossible to find chart with id : " + gID);
+                return;
+            }
+            if (res.status.code === 200) {
                 chart.data.labels = res.graph.data.labels;
                 chart.data.datasets = res.graph.data.datasets;
                 chart.update();
             } else
-                console.error("Impossible to update graph with id : " + gID);
+                console.error(res.status.message);
         }
     });
 }

@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Exception\GraphInternalException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
 class Data
@@ -68,7 +69,7 @@ class Data
      */
     public function createLine(string $id, string $label = null) {
         if (key_exists($id, $this->lines))
-            throw new \Exception("Line with id '" . $id . "' already exist.");
+            throw new GraphInternalException("Line with id '" . $id . "' already exist.");
         $this->lines[$id] = new Line($id, $label);
         return $this->lines[$id];
     }
@@ -80,21 +81,27 @@ class Data
      * @throws \Exception
      */
     public function incrementValueForItemWithLabel(string $label, float $value, string $lineID = null, bool $designColor = false) {
-        $line = $this->getLineWithID($lineID);
-        if ($line == null)
-            throw new \Exception("Impossible to increment value of item with label '" . $label . "'. Line '" . $lineID . "' doesn't exist.");
+        $line = $this->getLineWithID($lineID, true);
         $line->incrementValueForItemWithLabel($label, $value, $designColor);
     }
 
     /**
      * @param string|null $id
+     * @param bool $throw
      * @return Line|null
+     * @throws GraphInternalException
      */
-    public function getLineWithID(string $id = null) {
-        if ($id == null && !empty($this->lines))
-            return array_values($this->lines)[0];
-        if (key_exists($id, $this->lines))
-            return $this->lines[$id];
+    public function getLineWithID(string $id = null, bool $throw = false): ?Line {
+        if ($id != null) {
+            if (key_exists($id, $this->lines))
+                return $this->lines[$id];
+        } else {
+            if (!empty($this->lines))
+                return array_values($this->lines)[0];
+            $id = "null";
+        }
+        if ($throw)
+            throw new GraphInternalException("Impossible to get the line with id '" . $id . "'. Line not found.");
         return null;
     }
 }
