@@ -92,9 +92,11 @@ class DataItem extends DesignableItem
 
     /**
      * @param \DateTime $date
+     * @return DataItem
      */
     public function setDate(\DateTime $date)
     {
         $this->date = $date;
+        return $this;
     }
 }

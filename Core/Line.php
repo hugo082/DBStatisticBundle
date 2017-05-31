@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Core\Scale\DateScale;
 use DB\StatisticBundle\Exception\GraphInternalException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -106,6 +107,21 @@ class Line extends DesignableItem
             $date = $date->modify($increments);
             $this->getItemWithLabel($date->format($format), true, clone $date, $value);
         }
+    }
+
+    /**
+     * @param DateScale $dateScale
+     * @param \DateTime $date
+     * @param float $value
+     * @param bool $designColor
+     * @return DataItem|null
+     */
+    public function incrementValueForItemWithDate(DateScale $dateScale, \DateTime $date, float $value, bool $designColor = false): ?DataItem {
+        $buff = (new \DateTime())->modify($dateScale->getDownFormat());
+        if ($date < $buff)
+            return null;
+        $label = $date->format($dateScale->getFormat());
+        return $this->incrementValueForItemWithLabel($label, $value, $designColor)->setDate($date);
     }
 
     /**

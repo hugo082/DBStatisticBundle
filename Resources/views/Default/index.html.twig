@@ -17,17 +17,20 @@
 
 </style>
 
-
+{#
 <div data-type="graph" data-id="g74" data-multiple="first"></div>
 <div data-type="graph" data-id="g75" data-multiple="first"></div>
+#}
 <div data-type="graph" data-id="g76"></div>
+{#
 <div data-type="graph" data-id="g77" data-multiple="second"></div>
 <div data-type="graph" data-id="g78" data-multiple="third"></div>
+#}
 
 
 
 {% javascripts '@DBStatisticBundle/Resources/public/js/jquery.min.js'
-'@DBStatisticBundle/Resources/public/js/statcore.js'
+'@DBStatisticBundle/Resources/public/js/statcore.min.js'
 '@DBStatisticBundle/Resources/public/js/Chart.min.js' %}
 <script src="{{ asset_url }}"></script>
 {% endjavascripts %}

@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Core\Scale\DateScale;
 use DB\StatisticBundle\Exception\GraphInternalException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
@@ -23,9 +24,15 @@ class Data
      */
     private $lines;
 
+    /**
+     * @var DateScale
+     */
+    private $scale;
+
     public function __construct()
     {
         $this->lines = array();
+        $this->scale = null;
     }
 
     public function encode(): array {
@@ -41,6 +48,14 @@ class Data
             "datasets" => $lines,
             "labels" => $labels
         );
+    }
+
+    public function computeItemWithScale() {
+        if ($this->scale == null)
+            throw new GraphInternalException("You must set a DateScale before compute them");
+        $format = $this->scale->getFormat();
+        $this->defaultLabelForDate($format, $this->scale->getUpFormat());
+        $this->sortItemsByDate($format);
     }
 
     public function sortItems(callable $cmp) {
@@ -103,5 +118,21 @@ class Data
         if ($throw)
             throw new GraphInternalException("Impossible to get the line with id '" . $id . "'. Line not found.");
         return null;
+    }
+
+    /**
+     * @return DateScale
+     */
+    public function getScale(): DateScale
+    {
+        return $this->scale;
+    }
+
+    /**
+     * @param DateScale $scale
+     */
+    public function setScale(DateScale $scale)
+    {
+        $this->scale = $scale;
     }
 }
