@@ -43,7 +43,7 @@ class DataItem extends DesignableItem
     }
 
     public function encode(array &$data) {
-        $data["data"][] = $this->value;
+        $data["data"][] = round($this->value, 3);
         $data["labels"][] = $this->label;
         foreach ($this->options as $key => $value)
             $data[$key][] = $value;

@@ -14,6 +14,8 @@
 namespace DB\StatisticBundle\Core;
 
 use DB\StatisticBundle\Core\Scale\DateScale;
+use DB\StatisticBundle\Core\Scale\Item\DateScaleItem;
+use DB\StatisticBundle\Core\Scale\Item\ScaleItem;
 use DB\StatisticBundle\Exception\GraphInternalException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -30,11 +32,17 @@ class Line extends DesignableItem
      */
     private $items;
 
-    public function __construct(string $id, string $label = null)
+    /**
+     * @var ScaleItem
+     */
+    private $scaleItem;
+
+    public function __construct(string $id, string $label = null, ScaleItem $scaleItem = null)
     {
         parent::__construct($label);
         $this->id = $id;
         $this->items = array();
+        $this->scaleItem = $scaleItem;
     }
 
     /**
@@ -110,17 +118,21 @@ class Line extends DesignableItem
     }
 
     /**
-     * @param DateScale $dateScale
      * @param \DateTime $date
      * @param float $value
      * @param bool $designColor
      * @return DataItem|null
+     * @throws GraphInternalException
      */
-    public function incrementValueForItemWithDate(DateScale $dateScale, \DateTime $date, float $value, bool $designColor = false): ?DataItem {
-        $buff = (new \DateTime())->modify($dateScale->getDownFormat());
-        if ($date < $buff)
+    public function incrementValueForItemWithDate(\DateTime $date, float $value, bool $designColor = false): ?DataItem {
+        if (!$this->scaleItem instanceof DateScaleItem)
+            throw new GraphInternalException("Scale item of line " . $this->id . " must be a DateScaleItem. " . gettype($this->scaleItem) . " given.");
+        if (!$this->scaleItem->validate($date)) {
+            //echo "REJECTED " . $date->format("d/m/y") . PHP_EOL;
             return null;
-        $label = $date->format($dateScale->getFormat());
+        } //else
+            //echo "ACCEPTED " . $date->format("d/m/y") . " <=" . PHP_EOL;
+        $label = $date->format($this->scaleItem->getLabelFormat());
         return $this->incrementValueForItemWithLabel($label, $value, $designColor)->setDate($date);
     }
 

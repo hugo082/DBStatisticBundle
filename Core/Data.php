@@ -13,9 +13,8 @@
 
 namespace DB\StatisticBundle\Core;
 
-use DB\StatisticBundle\Core\Scale\DateScale;
+use DB\StatisticBundle\Core\Scale\Scale;
 use DB\StatisticBundle\Exception\GraphInternalException;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 class Data
 {
@@ -25,7 +24,7 @@ class Data
     private $lines;
 
     /**
-     * @var DateScale
+     * @var Scale
      */
     private $scale;
 
@@ -53,9 +52,8 @@ class Data
     public function computeItemWithScale() {
         if ($this->scale == null)
             throw new GraphInternalException("You must set a DateScale before compute them");
-        $format = $this->scale->getFormat();
-        $this->defaultLabelForDate($format, $this->scale->getUpFormat());
-        $this->sortItemsByDate($format);
+        $scale_item = $this->scale->getCurrentItem();
+        $scale_item->compute($this);
     }
 
     public function sortItems(callable $cmp) {
@@ -85,7 +83,8 @@ class Data
     public function createLine(string $id, string $label = null) {
         if (key_exists($id, $this->lines))
             throw new GraphInternalException("Line with id '" . $id . "' already exist.");
-        $this->lines[$id] = new Line($id, $label);
+        $scale_item = ($this->scale == null) ? null : $this->scale->getCurrentItem();
+        $this->lines[$id] = new Line($id, $label, $scale_item);
         return $this->lines[$id];
     }
 
@@ -121,17 +120,17 @@ class Data
     }
 
     /**
-     * @return DateScale
+     * @return Scale
      */
-    public function getScale(): DateScale
+    public function getScale(): Scale
     {
         return $this->scale;
     }
 
     /**
-     * @param DateScale $scale
+     * @param Scale $scale
      */
-    public function setScale(DateScale $scale)
+    public function setScale(Scale $scale)
     {
         $this->scale = $scale;
     }
