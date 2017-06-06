@@ -3,7 +3,7 @@
 
 DBStatistic (DBS) is a graph generator that help you to implement a database statistics on your website.
 
-`v1.0` `01 JUN 17`
+`v1.1` `06 JUN 17`
 
 ## Installation
 
@@ -80,7 +80,7 @@ After this, go to your service class and implement your custom method
 
     use DB\StatisticBundle\Core\Graph;
     
-    public function myCustomGraphMethod(Graph $graph, array $parameters) {
+    public function myCustomGraphMethod(Graph $graph) {
         // set your data
     }
 
@@ -90,7 +90,7 @@ To set data to your graph, you must use the `Graph` parameter and insert the dat
 will contains the data. All data have been sorted by string label.
 For example
 
-    public function myCustomGraphMethod(Graph $graph, array $parameters) {
+    public function myCustomGraphMethod(Graph $graph) {
         $repo = $this->em->getRepository('MyBundle:MyEntity');
         $entities = $repo->findAll();
 
@@ -111,7 +111,7 @@ List of line data insertion :
 Your graph can contains multiple line. To do this, can create multiple line on your data (Warning : all line must have 
 different id).
 
-    public function myCustomGraphMethod(Graph $graph, array $parameters) {
+    public function myCustomGraphMethod(Graph $graph) {
         $repo = $this->em->getRepository('MyBundle:MyEntity');
         $entities = $repo->findAll();
 
@@ -127,17 +127,25 @@ different id).
     
 ### Graph actions
 
-You can set different actions on your graph by adding them in your `config.yml` file. This action send to your custom 
-method in `paramters`. Some defaults methods takes this `parameters` into account to custom the result (like scale).
+You can set different actions on your graph by adding them in your `config.yml` file. Thess actions are computed end injected 
+into your graph object. Some defaults methods takes these actions into account to custom the result (like scale).
+For the `select` action type you must configure a `default` choice.
 
     graphID:
         actions:
-          - {id: actionId, title: actionTitle}
+            - {id: actionId, type: button, title: actionTitle}  # type : 'button' | 'select'
+            - {id: datescale, type: select, choices: [
+                    {id: week, title: Week},
+                    {id: day, title: Day},
+                    {id: month, title: Month, default: true},
+                    {id: year, title: Year}
+                ]
+              }
     
 ### Graph scale
 
-You can create a scale for your graph. To do this, you must set the scale to your data and compute them with graph `parameters`.
-All scale item have an `action_id`, and this item are choose when `parameters` contains his action. 
+You can create a scale for your graph. To do this, you must set the scale to your data and compute them with graph action.
+All scale item have an `action_id`, and this item are choose when it is the value of action. 
 
 After setting all your data, you must compute them to take scale in consideration.
 
@@ -147,7 +155,7 @@ After setting all your data, you must compute them to take scale in consideratio
 
         $data = $graph->getData();
         $data->setScale(Scale::fromType(Scale::SCALE_TYPE_DATE));
-        $data->getScale()->computeParameters($parameters);
+        $data->getScale()->computeAction($graph->getAction("datescale"));
 
         $caLine = $data->createLine("ca", "Chiffre d'affaire");
         $beLine = $data->createLine("be", "Benefice");

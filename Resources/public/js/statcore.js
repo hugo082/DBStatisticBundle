@@ -91,6 +91,11 @@ function GraphController(id) {
         }).appendTo(this.container());
         this.show();
 
+        $('<div>')
+            .text(graph.informations.title).attr({
+            class: "title-container"
+        }).prependTo(this.container());
+
         this.actionController.graph = this.graph;
         this.actionController.actions = graph.actions;
         this.actionController.insert();
