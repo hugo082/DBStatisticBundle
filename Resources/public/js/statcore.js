@@ -2,13 +2,20 @@
  * Created by hugofouquet on 26/03/2017.
  */
 
-function ActionController(graphController, actions, graph, parent) {
+function ActionController(graphController, actions, graph) {
     this.actions = actions;
     this.graphController = graphController;
-    this.container = $('<div>').attr({
-        class: "actions-container"
-    }).prependTo(parent);
+    this._container = null;
+    this.container = function() {
+        if (this._container === null && this.graphController.container().length !== 0) {
+            this._container = $('<div>').attr({
+                class: "actions-container"
+            }).prependTo(this.graphController.container());
+        }
+        return this._container;
+    };
     this.graph = graph;
+    this.container();
 
     this.insert = function () {
         var actionController = this;
@@ -22,7 +29,7 @@ function ActionController(graphController, actions, graph, parent) {
     this.insertButton = function (action) {
         $('<button>')
             .text(action.title)
-            .prependTo(this.container)
+            .prependTo(this.container())
             .data("id", this.graph.informations.id)
             .data("action", action)
             .click(function () {
@@ -34,7 +41,7 @@ function ActionController(graphController, actions, graph, parent) {
         var graphController = this.graphController;
         var select = $('<select>')
             .text(action.title)
-            .prependTo(this.container)
+            .prependTo(this.container())
             .data("id", this.graph.informations.id)
             .data("action", action)
             .change(function () {
@@ -59,7 +66,7 @@ function GraphController(id) {
     this.container = function () {
         return $("div[data-id='" + this.id + "']");
     };
-    this.actionController = new ActionController(this, null, null, this.container());
+    this.actionController = new ActionController(this, null, null);
 
     this.request = function () {
         var controller = this;
@@ -152,9 +159,10 @@ for (var graphSet in multiple) {
             /** @namespace response.graphs */
             for (var graph in response.graphs) {
                 if (response.graphs.hasOwnProperty(graph)) {
+                    var buf = response.graphs[graph];
                     var graphController;
-                    graphController = new GraphController(null);
-                    graphController.loadResponse(response.graphs[graph]);
+                    graphController = new GraphController(buf.status.graph_id);
+                    graphController.loadResponse(buf);
                 }
             }
         }
