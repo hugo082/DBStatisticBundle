@@ -13,12 +13,18 @@
 
 namespace DB\StatisticBundle\Core\Action;
 
+use DB\StatisticBundle\Exception\GraphInternalException;
+
 class SelectAction extends Action
 {
     /**
      * @var array
      */
     private $choices;
+    /**
+     * @var SelectChoice
+     */
+    private $default_choice = null;
 
     public function __construct(string $id, array $choices, $value = null)
     {
@@ -33,12 +39,59 @@ class SelectAction extends Action
         ));
     }
 
+    public function computeParameters(array $parameters) {
+        parent::computeParameters($parameters);
+        if (!$this->isValidValue($this->value)) {
+            $this->value = null;
+            throw new GraphInternalException("Impossible to set value " . $parameters["value"] . " for action " . $this->id);
+        }
+    }
+
+    /**
+     * @param bool $force
+     * @return SelectChoice
+     * @throws GraphInternalException
+     */
+    public function getDefaultChoice(bool $force = false): SelectChoice {
+        if ($this->default_choice == null || $force) {
+            $this->computeDefaultChoice();
+            if ($this->default_choice == null)
+                throw new GraphInternalException("Impossible to load default choice for action " . $this->id);
+        }
+        return $this->default_choice;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getValue()
+    {
+        if ($this->value == null)
+            return $this->getDefaultChoice()->getId();
+        return $this->value;
+    }
+
+    private function isValidValue($value): bool {
+        /** @var SelectChoice $choice */
+        foreach ($this->choices as $choice) {
+            if ($choice->getId() == $value)
+                return true;
+        }
+        return false;
+    }
+
+    private function computeDefaultChoice() {
+        /** @var SelectChoice $choice */
+        foreach ($this->choices as $choice) {
+            if ($choice->isDefault()) {
+                $this->default_choice = $choice;
+                return;
+            }
+        }
+    }
+
     public static function decode(array $data) {
         $value = (key_exists("value", $data)) ? $data["value"] : null;
         return new SelectAction($data["id"], $data["choices"], $value);
-    }
-
-    public static function isValid(array $data) {
-        return key_exists("id", $data) && key_exists("value", $data);
     }
 }

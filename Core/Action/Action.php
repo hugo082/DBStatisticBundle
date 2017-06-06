@@ -46,6 +46,28 @@ abstract class Action
         );
     }
 
+    public function computeParameters(array $parameters) {
+        if (!key_exists("value", $parameters))
+            throw new GraphInternalException("Impossible to compute parameters");
+        $this->value = $parameters["value"];
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return null
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
     /**
      * @param array $data
      * @return ButtonAction|SelectAction
@@ -69,8 +91,10 @@ abstract class Action
      */
     public static function arrayToActions(array $data) {
         $res = array();
-        foreach ($data as $action)
-            $res[] = self::decode($action);
+        foreach ($data as $action) {
+            $action = self::decode($action);
+            $res[$action->id] = $action;
+        }
         return $res;
     }
 

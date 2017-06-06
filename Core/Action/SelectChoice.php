@@ -23,22 +23,52 @@ class SelectChoice
      * @var string
      */
     private $title;
+    /**
+     * @var boolean
+     */
+    private $default;
 
-    public function __construct(string $id, string $title)
+    public function __construct(string $id, string $title, bool $default)
     {
         $this->id = $id;
         $this->title = $title;
+        $this->default = $default;
     }
 
     public function encode(): array {
         return array(
             "id" => $this->id,
-            "title" => $this->title
+            "title" => $this->title,
+            "default" => $this->default
         );
     }
 
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDefault(): bool
+    {
+        return $this->default;
+    }
+
     public static function decode(array $data) {
-        return new SelectChoice($data["id"], $data["title"]);
+        return new SelectChoice($data["id"], $data["title"], $data["default"]);
     }
 
     /**

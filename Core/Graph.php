@@ -78,6 +78,21 @@ class Graph
         );
     }
 
+    /**
+     * Compute parameters to graph actions.
+     * @param array $parameters
+     * @throws GraphInternalException
+     */
+    public function computeParameters(array $parameters) {
+        if (!key_exists("id", $parameters))
+            return;
+        if (!key_exists($parameters["id"], $this->actions))
+            throw new GraphInternalException("Impossible to find action " . $parameters["id"] . " in graph " . $this->id);
+        /** @var Action $current */
+        $current = $this->actions[$parameters["id"]];
+        $current->computeParameters($parameters);
+    }
+
     private function encodeGraphInformations(): array {
         return array(
             "id" => $this->id,
@@ -180,6 +195,18 @@ class Graph
     public function setService(string $service)
     {
         $this->service = $service;
+    }
+
+    /**
+     * @param string $action_id
+     * @return array
+     * @throws GraphInternalException
+     */
+    public function getAction(string $action_id): Action
+    {
+        if (key_exists("$action_id", $this->actions))
+            return $this->actions[$action_id];
+        throw new GraphInternalException("Impossible to get action with id " . $action_id);
     }
 
     public static function fromArray(array $data): ?Graph {

@@ -48,7 +48,25 @@ class DBStatisticExtension extends Extension
             $values['id'] = $name;
             if (!isset($values['service']))
                 $values['service'] = $config['service'];
+            if (isset($values['actions']))
+                $this->loadActions($values);
         }
         $container->setParameter($this->getAlias().'.graphs', $config['graphs']);
+    }
+
+
+    private function loadActions(array &$graph)
+    {
+        foreach ($graph['actions'] as &$action) {
+            if (isset($action['choices']))
+                $this->loadChoices($action);
+        }
+    }
+
+    private function loadChoices(array &$action)
+    {
+        foreach ($action['choices'] as &$choice) {
+            $choice["default"] = $choice["default"] == "true" || $choice["default"] == "yes";
+        }
     }
 }

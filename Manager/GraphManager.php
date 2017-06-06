@@ -39,9 +39,11 @@ class GraphManager
 
     /**
      * @param Graph $graph
+     * @param array $parameters
      * @return Graph
      */
     private function computeGraph(Graph $graph, array $parameters) {
+        $graph->computeParameters($parameters);
         $service = $this->container->get($graph->getService());
         $methodName = $graph->getMethod();
         $service->$methodName($graph, $parameters);

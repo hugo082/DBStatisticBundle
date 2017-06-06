@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core\Scale;
 
+use DB\StatisticBundle\Core\Action\Action;
 use DB\StatisticBundle\Core\Action\SelectAction;
 use DB\StatisticBundle\Core\Scale\Item\DateScaleItem;
 use DB\StatisticBundle\Core\Scale\Item\ScaleItem;
@@ -57,14 +58,10 @@ class Scale
         $this->items[$item->getActionId()] = $item;
     }
 
-    public function computeParameters(array $parameters) {
-        if (!SelectAction::isValid($parameters) || $parameters["id"] != $this->id)
-            $value = $this->default_action;
-        else
-            $value = $parameters["value"];
-        if (key_exists($value, $this->items))
-            return $this->current_item = $this->items[$value];
-        throw new GraphInternalException("Impossible to load scale item (" . $this->id . ") with value " . $value);
+    public function computeAction(Action $action) {
+        if ($action->getValue() != null && key_exists($action->getValue(), $this->items))
+            return $this->current_item = $this->items[$action->getValue()];
+        throw new GraphInternalException("Impossible to load scale item (" . $this->id . ") with value " . $action->getValue());
     }
 
     /**
