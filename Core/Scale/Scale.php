@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core\Scale;
 
+use DB\StatisticBundle\Core\Action\SelectAction;
 use DB\StatisticBundle\Core\Scale\Item\DateScaleItem;
 use DB\StatisticBundle\Core\Scale\Item\ScaleItem;
 use DB\StatisticBundle\Exception\GraphInternalException;
@@ -35,12 +36,17 @@ class Scale
      * @var string
      */
     private $default_action;
+    /**
+     * @var string
+     */
+    private $id;
 
-    public function __construct(string $default_action, array $items)
+    public function __construct(string $id, string $default_action, array $items)
     {
         $this->default_action = $default_action;
         $this->items = $this->computeItems($items);
         $this->current_item = null;
+        $this->id = $id;
     }
 
     /**
@@ -52,10 +58,13 @@ class Scale
     }
 
     public function computeParameters(array $parameters) {
-        $action = (key_exists("id", $parameters)) ? $parameters["id"] : $this->default_action;
-        if (key_exists($action, $this->items))
-            return $this->current_item = $this->items[$action];
-        throw new GraphInternalException("Impossible to load scale item for action " . $action);
+        if (!SelectAction::isValid($parameters) || $parameters["id"] != $this->id)
+            $value = $this->default_action;
+        else
+            $value = $parameters["value"];
+        if (key_exists($value, $this->items))
+            return $this->current_item = $this->items[$value];
+        throw new GraphInternalException("Impossible to load scale item (" . $this->id . ") with value " . $value);
     }
 
     /**
@@ -85,7 +94,7 @@ class Scale
      */
     public static function fromType(string $scale_type) {
         if ($scale_type == self::SCALE_TYPE_DATE) {
-            return new Scale("month", array(
+            return new Scale("datescale", "month", array(
                 new DateScaleItem("year", "Y", "+1 year", "-7 years"),
                 new DateScaleItem("month", "M y", "+1 month", "-1 years"),
                 new DateScaleItem("week", "D", "+1 day", "-7 days"),

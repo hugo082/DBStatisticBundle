@@ -13,6 +13,7 @@
 
 namespace DB\StatisticBundle\Core;
 
+use DB\StatisticBundle\Core\Action\Action;
 use DB\StatisticBundle\Exception\GraphInternalException;
 
 class Graph
@@ -62,22 +63,22 @@ class Graph
         $this->title = $title;
         $this->service = $service;
         $this->method = $method;
-        $this->actions = $actions;
+        $this->actions = Action::arrayToActions($actions);
         $this->data = new Data();
     }
 
     /**
      * @return array
      */
-    public function encode() : array {
+    public function encode(): array {
         return array(
             "informations" => $this->encodeGraphInformations(),
-            "actions" => $this->actions,
+            "actions" => Action::encodeActions($this->actions),
             "data" => $this->data->encode()
         );
     }
 
-    private function encodeGraphInformations() : array {
+    private function encodeGraphInformations(): array {
         return array(
             "id" => $this->id,
             "type" => $this->type,

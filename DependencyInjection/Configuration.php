@@ -2,6 +2,7 @@
 
 namespace DB\StatisticBundle\DependencyInjection;
 
+use DB\StatisticBundle\Core\Action\Action;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -22,6 +23,7 @@ class Configuration implements ConfigurationInterface
     public const TYPES = array(Configuration::TYPE_LINE, Configuration::TYPE_BAR, Configuration::TYPE_RADAR,
         Configuration::TYPE_POLAR, Configuration::TYPE_PIE, Configuration::TYPE_DOUGHNUT);
 
+    public const ACTION_TYPES = array(Action::TYPE_SELECT, Action::TYPE_BUTTON);
     /**
      * {@inheritdoc}
      */
@@ -67,8 +69,19 @@ class Configuration implements ConfigurationInterface
                             ->arrayNode('actions')
                                 ->prototype('array')->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('title')->isRequired()->cannotBeEmpty()->end()
-                                        ->scalarNode('id')->cannotBeEmpty()->end()
+                                        ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
+                                        ->enumNode('type')->isRequired()->cannotBeEmpty()
+                                            ->values(Configuration::ACTION_TYPES)
+                                        ->end()
+                                        ->scalarNode('title')->end()
+                                        ->arrayNode('choices')
+                                            ->prototype('array')->addDefaultsIfNotSet()
+                                                ->children()
+                                                    ->scalarNode('id')->isRequired()->cannotBeEmpty()->end()
+                                                    ->scalarNode('title')->isRequired()->cannotBeEmpty()->end()
+                                                ->end()
+                                            ->end()
+                                        ->end()
                                     ->end()
                                 ->end()
                             ->end()
